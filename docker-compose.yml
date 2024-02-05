@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  # PHP с Apache
+  php-apache:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: my_php_apache_container
+    volumes:
+      - ./devnote:/var/www/html
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.php-apache.rule=Host(`localhost`)"
+      - "traefik.http.services.php-apache.loadbalancer.server.port=80"
+    networks:
+      - traefik-network
+    environment:
+      - APACHE_SERVER_NAME=localhost
+    
+
+  # MySQL
+  mysql:
+    image: mysql:5.7
+    container_name: my_mysql_container
+    environment:
+      MYSQL_ROOT_PASSWORD: 123
+      MYSQL_DATABASE: php
+      MYSQL_USER: user
+      MYSQL_PASSWORD: pass
+    networks:
+      - traefik-network
+
+  # Traefik
+  traefik:
+    image: traefik:latest
+    container_name: my_traefik_container
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - traefik-network
+
+networks:
+  traefik-network:
+    external: true
+    
