@@ -62,6 +62,93 @@ $conn->close();
 
 <!DOCTYPE html>
 <html lang="en">
+<style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            width: 600px;
+            margin: 50px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            
+        }
+        h2 {
+            text-align: center;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+            word-wrap: break-word;
+        }
+        li {
+            background-color: #f9f9f9;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        form {
+            margin: 60px;
+            text-align: center;
+            width: auto;
+        }
+        textarea {
+            width: calc(100% - 20px);
+            margin: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        input[type="submit"] {
+            width: calc(100% - 20px);
+            margin: 20px;
+            padding: 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #333;
+            color: #fff;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #555;
+        }
+        
+        .edit-note {
+            text-align: right;
+            margin-bottom: 20px;
+        }
+        .edit-note button {
+            background-color: #555;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .edit-note button:hover {
+            background-color: #777;
+        }
+        .cancel {
+            text-align: right;
+            margin-bottom: 20px;
+        }
+        .cancel button {
+            background-color: #555;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .cancel button:hover {
+            background-color: #777;
+        }
+    </style>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -69,10 +156,16 @@ $conn->close();
 </head>
 <body>
     <h2>Edit Note</h2>
+    <div class="edit-note">
     <form method="post" action="">
         <textarea name="noteInput" rows="4"><?php echo $noteContent; ?></textarea><br>
         <button type="submit">Save Changes</button>
     </form>
-    <a href="dashboard.php">Cancel</a>
+    </div>
+    <div class="cancel">
+    <form action="dashboard.php">
+        <button type="submit">Cancel</button>
+    </form>
+    </div>
 </body>
 </html>
