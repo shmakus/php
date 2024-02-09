@@ -1,4 +1,13 @@
-<!-- index.php -->
+<?php
+session_start();
+// Проверка, если пользователь уже авторизован, перенаправьте его на страницу дашборда
+if (isset($_SESSION["username"])) {
+    header("Location: dashboard.php");
+    exit();
+}
+// Остальной код страницы
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,13 +17,8 @@
 </head>
 <body>
     <h2>Login or Register</h2>
-    <form action="login.php" method="post">
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" required><br><br>
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required><br><br>
-        <button type="submit">Login</button>
-    </form>
+    <p>Login<a href="login.php">Login</a></p>
+
     <p>Don't have an account? <a href="register.php">Register</a></p>
 </body>
 </html>

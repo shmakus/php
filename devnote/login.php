@@ -1,7 +1,12 @@
 <?php
 session_start();
 include 'db_connection.php';
-
+// Проверка, если пользователь уже авторизован, перенаправьте его на страницу дашборда
+if (isset($_SESSION["username"])) {
+    header("Location: dashboard.php");
+    exit();
+}
+// Остальной код страницы
 // Проверка, была ли отправлена форма
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Проверка обязательного заполнения полей

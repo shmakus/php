@@ -30,6 +30,8 @@ services:
       MYSQL_PASSWORD: pass
     networks:
       - traefik-network
+    volumes:
+      - mysql-data:/var/lib/mysql
 
   # Traefik
   traefik:
@@ -49,4 +51,8 @@ services:
 networks:
   traefik-network:
     external: true
+
+volumes:
+  mysql-data:
+
     
