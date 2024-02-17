@@ -84,7 +84,6 @@ $conn->close();
         ul {
             list-style-type: none;
             padding: 0;
-            word-wrap: break-word;
         }
         li {
             background-color: #f9f9f9;
@@ -152,19 +151,19 @@ $conn->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Note</title>
+    <title>Редактирование заметки</title>
 </head>
 <body>
-    <h2>Edit Note</h2>
+    <h2>Редактирование</h2>
     <div class="edit-note">
     <form method="post" action="">
         <textarea name="noteInput" rows="4"><?php echo $noteContent; ?></textarea><br>
-        <button type="submit">Save Changes</button>
+        <button type="submit">Сохранить</button>
     </form>
     </div>
     <div class="cancel">
     <form action="dashboard.php">
-        <button type="submit">Cancel</button>
+        <button type="submit">Отмена</button>
     </form>
     </div>
 </body>

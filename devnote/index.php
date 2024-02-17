@@ -2,11 +2,14 @@
 session_start();
 // Проверка, если пользователь уже авторизован, перенаправьте его на страницу дашборда
 if (isset($_SESSION["username"])) {
-    header("Location: dashboard.php");
+    // Получение идентификатора пользователя из сессии
+    $user_id_session = $_SESSION["user_id"];
+    header("Location: dashboard.php?user_id=" . $user_id_session);
     exit();
 }
 // Остальной код страницы
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">

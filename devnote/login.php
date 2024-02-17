@@ -1,42 +1,63 @@
 <?php
 session_start();
 include 'db_connection.php';
+
 // Проверка, если пользователь уже авторизован, перенаправьте его на страницу дашборда
 if (isset($_SESSION["username"])) {
-    header("Location: dashboard.php");
+    // Получение идентификатора пользователя из сессии
+    $user_id_session = $_SESSION["user_id"];
+    header("Location: dashboard.php?user_id=" . $user_id_session);
     exit();
 }
-// Остальной код страницы
+
 // Проверка, была ли отправлена форма
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Проверка обязательного заполнения полей
     if (!empty($_POST["username"]) && !empty($_POST["password"])) {
         // Проверка, содержат ли поля только латинские символы
-        if (preg_match('/^[a-zA-Z0-9]+$/', $_POST["username"]) && preg_match('/^[a-zA-Z0-9]+$/', $_POST["password"])) {
+        if (preg_match('/^[a-zA-Z0-9]+$/', $_POST["username"])) {
             $username = $_POST["username"];
             $password = $_POST["password"];
 
-            // Проверка наличия пользователя в базе данных
-            $sql = "SELECT * FROM users WHERE username='$username' AND password='$password'";
-            $result = $conn->query($sql);
+            // Получение хэша пароля из базы данных
+            $sql = "SELECT id, password, status FROM users WHERE username=?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("s", $username);
+            $stmt->execute();
+            $result = $stmt->get_result();
 
             if ($result->num_rows == 1) {
-                // Пользователь найден, создаем сессию и перенаправляем его на личную страницу
-                $_SESSION["username"] = $username;
-                header("Location: dashboard.php");
-                exit();
+                $row = $result->fetch_assoc();
+                $hashed_password = $row["password"];
+
+                // Проверка соответствия введенного пароля хэшу из базы данных
+                if (password_verify($password, $hashed_password)) {
+                    // Пользователь найден, создаем сессию и перенаправляем его на личную страницу
+                    $_SESSION["username"] = $username;
+                    $_SESSION["user_id"] = $row["id"]; // Получение ID пользователя
+                    $_SESSION["status"] = $row["status"]; // Получение статуса пользователя
+
+                    header("Location: dashboard.php?user_id=" . $_SESSION["user_id"]); // Передача ID пользователя через URL
+                    exit();
+                } else {
+                    // Пользователь не найден или пароль не совпадает, выводим сообщение об ошибке
+                    echo "Неправильный логин или пароль.";
+                }
             } else {
                 // Пользователь не найден, выводим сообщение об ошибке
-                echo "Invalid username or password.";
+                echo "Неправильный логин или пароль.";
             }
         } else {
-            echo "Only Latin characters and digits are allowed for username and password.";
+            echo "В имени пользователя допускается использование только латинских символов и цифр.";
         }
     } else {
-        echo "Both username and password are required.";
+        echo "Требуются имя пользователя и пароль.";
     }
 }
 ?>
+
+
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -103,7 +124,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <?php if(isset($error_message)) { ?>
             <div class="error"><?php echo $error_message; ?></div>
         <?php } ?>
-        <p style="text-align: center;">Don't have an account? <a href="register.php">Register</a></p>
+        <p style="text-align: center;">У вас нет аккаунта? <a href="register.php">Регистрация</a></p>
     </div>
 </body>
 </html>

@@ -1,36 +1,57 @@
 <?php
 session_start();
 include 'db_connection.php';
+
 // Проверка, если пользователь уже авторизован, перенаправьте его на страницу дашборда
 if (isset($_SESSION["username"])) {
     header("Location: dashboard.php");
     exit();
 }
-// Остальной код страницы
-// Проверка, была ли отправлена форма регистрации
+
+// Проверка на прямой доступ к скрипту
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Проверка обязательного заполнения полей
-    if (!empty($_POST["username"]) && !empty($_POST["password"])) {
-        $username = $_POST["username"];
-        $password = $_POST["password"];
+    // Остальной код страницы
+    // Проверка, была ли отправлена форма регистрации
+    if (!empty($_POST["username"]) && !empty($_POST["password"]) && !empty($_POST["confirm_password"])) {
+        if (preg_match('/^[a-zA-Z0-9]+$/', $_POST["username"]) && preg_match('/^[a-zA-Z0-9]+$/', $_POST["password"])) {
+            $username = $_POST["username"];
+            $password = $_POST["password"];
+            $confirm_password = $_POST["confirm_password"];
 
-        // Попытка вставки данных в базу данных
-        $sql = "INSERT INTO users (username, password) VALUES ('$username', '$password')";
-        if ($conn->query($sql) === TRUE) {
-            // Установка сессии для пользователя
-            $_SESSION["username"] = $username;
+            // Проверка совпадения паролей
+            if ($password === $confirm_password) {
+                // Подготовленный запрос для вставки данных в базу данных
+                $stmt = $conn->prepare("INSERT INTO users (username, password) VALUES (?, ?)");
+                $stmt->bind_param("ss", $username, $hashed_password);
 
-            // Перенаправление на дашборд
-            header("Location: dashboard.php");
-            exit();
+                // Хэширование пароля
+                $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+
+                // Попытка выполнения подготовленного запроса
+                if ($stmt->execute()) {
+                    // Установка сессии для пользователя
+                    $_SESSION["username"] = $username;
+                    $_SESSION["user_id"] = $stmt->insert_id; // Получение ID только что добавленного пользователя
+
+                    // Перенаправление на дашборд
+                    header("Location: dashboard.php?user_id=" . $_SESSION["user_id"]); // Передача ID пользователя через URL
+                    exit();
+                } else {
+                    echo "Данный логин занят";
+                }
+            } else {
+                echo "Пароли не свопадают";
+            }
         } else {
-            echo "Данный логин занят" ;
+            echo "В имени пользователя и пароле допускается использование только латинских символов и цифр.";
         }
     } else {
-        echo "Both username and password are required.";
+        echo "Все поля обязательны для заполнения.";
     }
 }
 ?>
+
+
 
 
 <!DOCTYPE html>
@@ -93,12 +114,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <form method="post" action="">
             <input type="text" name="username" placeholder="Username" required><br>
             <input type="password" name="password" placeholder="Password" required><br>
+            <input type="password" name="confirm_password" placeholder="Confirm Password" required><br>
             <input type="submit" value="Register">
         </form>
         <?php if(isset($error_message)) { ?>
             <div class="error"><?php echo $error_message; ?></div>
         <?php } ?>
-        <p style="text-align: center;">Already have an account? <a href="login.php">Login</a></p>
+        <p style="text-align: center;">У вас есть аккаунт? <a href="login.php">Вход</a></p>
     </div>
 </body>
 </html>
